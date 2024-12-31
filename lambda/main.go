@@ -4,8 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/aws/aws-lambda-go/lambda"
 	"time"
+
+	"github.com/aws/aws-lambda-go/lambda"
 )
 
 func main() {
