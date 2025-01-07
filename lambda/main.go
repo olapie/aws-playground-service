@@ -14,6 +14,8 @@ func main() {
 }
 
 type Response struct {
+	Version string `json:"version"`
+
 	DateTime        time.Time `json:"date_time"`
 	Timestamp       int64     `json:"timestamp"`
 	TimestampMillis int64     `json:"timestamp_millis"`
@@ -30,5 +32,6 @@ func handleRequest(ctx context.Context, event json.RawMessage) (*Response, error
 	resp.DateTime = now
 	resp.Timestamp = now.Unix()
 	resp.TimestampMillis = now.UnixMilli()
+	resp.Version = "v0.1"
 	return &resp, nil
 }
