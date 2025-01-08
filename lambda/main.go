@@ -32,6 +32,6 @@ func handleRequest(ctx context.Context, event json.RawMessage) (*Response, error
 	resp.DateTime = now
 	resp.Timestamp = now.Unix()
 	resp.TimestampMillis = now.UnixMilli()
-	resp.Version = "v0.1"
+	resp.Version = "v0.2"
 	return &resp, nil
 }
