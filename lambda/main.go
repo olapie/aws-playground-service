@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -23,6 +25,7 @@ type Response struct {
 		Version string
 		Headers map[string]string
 		Cookies []string
+		RawPath string
 	}
 }
 
@@ -36,5 +39,11 @@ func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*R
 	resp.Request.Headers = req.Headers
 	resp.Request.Cookies = req.Cookies
 	resp.Request.Version = req.Version
+	data, err := json.Marshal(req)
+	if err != nil {
+		slog.Error("marshal error: " + err.Error())
+	} else {
+		slog.Info(string(data))
+	}
 	return &resp, nil
 }
