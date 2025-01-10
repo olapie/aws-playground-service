@@ -39,6 +39,7 @@ func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*R
 	resp.Request.Headers = req.Headers
 	resp.Request.Cookies = req.Cookies
 	resp.Request.Version = req.Version
+	resp.Request.RawPath = req.RawPath
 	data, err := json.Marshal(req)
 	if err != nil {
 		slog.Error("marshal error: " + err.Error())
