@@ -7,11 +7,13 @@ import (
 	"net/http"
 	"time"
 
+	"code.olapie.com/private-repo-demo"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
 func main() {
+	private_repo_demo.Hello("hi")
 	lambda.Start(handleRequest)
 }
 
@@ -39,7 +41,7 @@ func handleRequest(ctx context.Context, req *events.ALBTargetGroupRequest) (*eve
 	payload.DateTime = now
 	payload.Timestamp = now.Unix()
 	payload.TimestampMillis = now.UnixMilli()
-	payload.Version = "v0.3"
+	payload.Version = "v0.4"
 	payload.Request.Headers = req.Headers
 	payload.Request.Body = req.Body
 	payload.Request.Method = req.HTTPMethod
