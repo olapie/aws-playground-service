@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
+	"net/http"
 	"time"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -14,7 +15,7 @@ func main() {
 	lambda.Start(handleRequest)
 }
 
-type Response struct {
+type Payload struct {
 	Version string `json:"version"`
 
 	DateTime        time.Time `json:"date_time"`
@@ -29,22 +30,32 @@ type Response struct {
 	}
 }
 
-func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*Response, error) {
-	var resp Response
+func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
+	var payload Payload
 	now := time.Now()
-	resp.DateTime = now
-	resp.Timestamp = now.Unix()
-	resp.TimestampMillis = now.UnixMilli()
-	resp.Version = "v0.3"
-	resp.Request.Headers = req.Headers
-	resp.Request.Cookies = req.Cookies
-	resp.Request.Version = req.Version
-	resp.Request.RawPath = req.RawPath
+	payload.DateTime = now
+	payload.Timestamp = now.Unix()
+	payload.TimestampMillis = now.UnixMilli()
+	payload.Version = "v0.3"
+	payload.Request.Headers = req.Headers
+	payload.Request.Cookies = req.Cookies
+	payload.Request.Version = req.Version
+	payload.Request.RawPath = req.RawPath
 	data, err := json.Marshal(req)
 	if err != nil {
 		slog.Error("marshal error: " + err.Error())
 	} else {
 		slog.Info(string(data))
 	}
-	return &resp, nil
+	res := &events.APIGatewayV2HTTPResponse{
+		StatusCode: http.StatusOK,
+		Headers:    map[string]string{"Content-Type": "application/json"},
+	}
+	body, err := json.Marshal(payload)
+	if err != nil {
+		slog.Error("marshal error: " + err.Error())
+	} else {
+		res.Body = string(body)
+	}
+	return res, nil
 }
