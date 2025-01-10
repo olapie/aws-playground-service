@@ -23,14 +23,17 @@ type Payload struct {
 	TimestampMillis int64     `json:"timestamp_millis"`
 
 	Request struct {
-		Version string
-		Headers map[string]string
-		Cookies []string
-		RawPath string
+		Body    string            `json:"body"`
+		Headers map[string]string `json:"headers"`
+		Method  string            `json:"method"`
+		Path    string            `json:"path"`
 	}
 }
 
-func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*events.APIGatewayV2HTTPResponse, error) {
+// Different type for requests from different sender, e.g. ApplicationLoadBalancer, APIGateway
+// refer to https://pkg.go.dev/github.com/aws/aws-lambda-go/events#section-readme
+
+func handleRequest(ctx context.Context, req *events.ALBTargetGroupRequest) (*events.ALBTargetGroupResponse, error) {
 	var payload Payload
 	now := time.Now()
 	payload.DateTime = now
@@ -38,16 +41,16 @@ func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*e
 	payload.TimestampMillis = now.UnixMilli()
 	payload.Version = "v0.3"
 	payload.Request.Headers = req.Headers
-	payload.Request.Cookies = req.Cookies
-	payload.Request.Version = req.Version
-	payload.Request.RawPath = req.RawPath
+	payload.Request.Body = req.Body
+	payload.Request.Method = req.HTTPMethod
+	payload.Request.Path = req.Path
 	data, err := json.Marshal(req)
 	if err != nil {
 		slog.Error("marshal error: " + err.Error())
 	} else {
 		slog.Info(string(data))
 	}
-	res := &events.APIGatewayV2HTTPResponse{
+	res := &events.ALBTargetGroupResponse{
 		StatusCode: http.StatusOK,
 		Headers:    map[string]string{"Content-Type": "application/json"},
 	}
