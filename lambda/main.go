@@ -2,10 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"time"
 
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
@@ -20,18 +19,22 @@ type Response struct {
 	Timestamp       int64     `json:"timestamp"`
 	TimestampMillis int64     `json:"timestamp_millis"`
 
-	ReceivedRequest map[string]any `json:"received_request"`
+	Request struct {
+		Version string
+		Headers map[string]string
+		Cookies []string
+	}
 }
 
-func handleRequest(ctx context.Context, event json.RawMessage) (*Response, error) {
+func handleRequest(ctx context.Context, req *events.APIGatewayV2HTTPRequest) (*Response, error) {
 	var resp Response
-	if err := json.Unmarshal(event, &resp.ReceivedRequest); err != nil {
-		return nil, fmt.Errorf("json.Unmarshal: %w", err)
-	}
 	now := time.Now()
 	resp.DateTime = now
 	resp.Timestamp = now.Unix()
 	resp.TimestampMillis = now.UnixMilli()
 	resp.Version = "v0.3"
+	resp.Request.Headers = req.Headers
+	resp.Request.Cookies = req.Cookies
+	resp.Request.Version = req.Version
 	return &resp, nil
 }
