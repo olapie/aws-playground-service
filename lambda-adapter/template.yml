@@ -1,0 +1,34 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda-adapter
+
+  Sample SAM Template for aws-playground-service/lambda-adapter.zip
+
+Globals:
+  Function:
+    Timeout: 10
+
+Resources:
+  DemoHttpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./app
+      Handler: bootstrap
+      Runtime: provided.al2023
+      MemorySize: 256
+      Environment:
+        Variables:
+          PORT: 8000
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:753240598075:layer:LambdaAdapterLayerX86:23
+      Events:
+        APIEvent:
+          Type: HttpApi
+    Metadata:
+      BuildMethod: go1.x
+
+Outputs:
+  DemoHttpApi:
+    Description: "API Gateway endpoint URL for Prod stage for http function"
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/"
