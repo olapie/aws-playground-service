@@ -24,12 +24,7 @@ type Payload struct {
 	Timestamp       int64     `json:"timestamp"`
 	TimestampMillis int64     `json:"timestamp_millis"`
 
-	Request struct {
-		Body    string            `json:"body"`
-		Headers map[string]string `json:"headers"`
-		Method  string            `json:"method"`
-		Path    string            `json:"path"`
-	}
+	Request any
 }
 
 // Different type for requests from different sender, e.g. ApplicationLoadBalancer, APIGateway
@@ -41,17 +36,9 @@ func handleRequest(ctx context.Context, req *events.ALBTargetGroupRequest) (*eve
 	payload.DateTime = now
 	payload.Timestamp = now.Unix()
 	payload.TimestampMillis = now.UnixMilli()
-	payload.Version = "v0.4"
-	payload.Request.Headers = req.Headers
-	payload.Request.Body = req.Body
-	payload.Request.Method = req.HTTPMethod
-	payload.Request.Path = req.Path
-	data, err := json.Marshal(req)
-	if err != nil {
-		slog.Error("marshal error: " + err.Error())
-	} else {
-		slog.Info(string(data))
-	}
+	payload.Version = "v0.5"
+	payload.Request = req
+
 	res := &events.ALBTargetGroupResponse{
 		StatusCode: http.StatusOK,
 		Headers:    map[string]string{"Content-Type": "application/json"},
